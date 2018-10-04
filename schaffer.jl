@@ -84,4 +84,28 @@ function filteringNondominated(solution)
     yn = solution[yn[1:end],:]
     return yn
 end
+# Mettre une copie de yn dans la fonction
+function suportedPoints(Yn)
+  lexOpt = minimum(yn[:,2])
+  p = lexOpt
+  L = Int[]
+  do{
+    # inserer p dans la liste
+      push!(L,p)
+      # supprimer p de yn
+      updateJarvisPoint(yn,p)
+
+  }while()
+
+end
+
+function UpdateJarvisPoint(yn,p)
+  n = length(yn[:,1])
+  minAngle = BigInt(typemax(Int));
+  for i = 1:n
+    # si p_suivant est à gauche de p alors p = p'
+    if
+
+  end
+end
 feasibleoutcomeSet()
