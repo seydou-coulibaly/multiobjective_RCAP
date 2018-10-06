@@ -121,12 +121,13 @@ function kimFunction()
     print("\t");print(length(yn[:,1]));println(" points found :\n")
     affichageMatrice(yn)
 
-    ys = suportedPoints(yn,indF1,indF2)
-    print("\t");print(length(ys[:,1]));println(" points found :\n")
-    affichageMatrice(ys)
+    yns,ynn = suportedPoints(yn,indF1,indF2)
+    print("\t");print(length(yns[:,1]));println(" points found :\n")
+    affichageMatrice(yns)
 
     print(length(yn[:,1]));println(" non-dominated points\n")
-    print(length(ys[:,1]));println(" Supported points\n")
+    print(length(yns[:,1]));println(" Supported points\n")
+    print(length(ynn[:,1]));println(" Non-Supported points\n")
 
     #-----------------------------------------------------------------------------------------
     # println(" Graphique : ")
@@ -139,12 +140,12 @@ function kimFunction()
         write(f,"$i \t $x1 \t $x2 \t $f1 \t $f2\n");
     end
     close(f);
-    f = open("kimYS.dat", "w");
-    for i = 1:length(ys[:,1])
-        x1  = ys[i,indV1]
-        x2  = ys[i,indV2]
-        f1  = ys[i,indF1]
-        f2  = ys[i,indF2]
+    f = open("kimyns.dat", "w");
+    for i = 1:length(yns[:,1])
+        x1  = yns[i,indV1]
+        x2  = yns[i,indV2]
+        f1  = yns[i,indF1]
+        f2  = yns[i,indF2]
         write(f,"$i \t $x1 \t $x2 \t $f1 \t $f2\n");
     end
     close(f);

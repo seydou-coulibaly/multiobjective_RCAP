@@ -1,4 +1,4 @@
 include("function.jl")
-include("filtrage.jl")
+#include("filtrage.jl")
 #schafferFunction()
 kimFunction()
