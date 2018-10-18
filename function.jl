@@ -1,4 +1,4 @@
-using PyPlot
+# using PyPlot
 using Distributions
 include("filtrage.jl")
 function schafferFunction()
@@ -152,4 +152,62 @@ function kimFunction()
     #-----------------------------------------------------------------------------------------
 
     println("\nFin du programme")
+end
+
+function cantileverProblem()
+    # definition de la variable et son domaine de variation
+    l = 0.0
+    d = 0.0
+    delta = 0
+    # definition du pas de calcul
+    step  = 1000;
+
+    P = 1
+    E = 207
+    Sy = 300
+    rho = 7800
+    deltaMax = 5
+    cond = 1
+    # generer k solutions
+    f = open("cantilever.dat", "w");
+    for i = 1:step
+        cond = 0
+        while cond == 0
+            # generer d
+            d = rand(Uniform(10, 50))
+            # generer l
+            l = rand(Uniform(200, 1000))
+
+            l = round(l,2)
+            d = round(d,2)
+
+            rhoMax = (32 * P * l)/(pi * d^3)
+            rhoMax = round(rhoMax,2)
+
+            delta = (64 * P * l^3)/(3 * E * pi * d^4)
+            delta = round(delta,2)
+
+            if rhoMax <= Sy && delta <= deltaMax
+                cond = 1
+            end
+
+        end
+        # definition des fonctions
+        f1 = (rho * pi * d^2 * l) / 4
+        f2 = delta
+
+        f1 = round(f1,3)
+        f2 = round(f2,3)
+         println("$i \t $l \t $d \t $f1 \t $f2\n");
+         write(f,"$i \t $l \t $d \t $f1 \t $f2\n");
+    end
+    close(f);
+
+    # solutions
+    # solution = zeros(step,4)
+    # indV1 = 1
+    # indV2 = 2
+    # indF1 = 3
+    # indF2 = 4
+
 end
