@@ -1,4 +1,4 @@
-# using PyPlot
+using PyPlot
 using Distributions
 include("filtrage.jl")
 function schafferFunction()
@@ -61,7 +61,7 @@ function schafferFunction()
     # ylabel('F2')
     # ylabel('F1')
     # plot(solution[:,indF1],solution[:,indF2],color="red",linewidth=2.0)
-    println("\nFin du programme")
+    println("\nFin de la fonction")
 
 end
 
@@ -151,16 +151,19 @@ function kimFunction()
     close(f);
     #-----------------------------------------------------------------------------------------
 
-    println("\nFin du programme")
+    println("\nFin de la fonction")
 end
 
 function cantileverProblem()
+    println("-------------------------------------------------------------------")
+    println("\t \t**** \t  Cantilever's problem \t *****\t \t")
+    println("-------------------------------------------------------------------")
     # definition de la variable et son domaine de variation
     l = 0.0
     d = 0.0
     delta = 0
     # definition du pas de calcul
-    step  = 1000;
+    step  = 10000;
 
     P = 1
     E = 207
@@ -168,9 +171,19 @@ function cantileverProblem()
     rho = 7800
     deltaMax = 5
     cond = 1
-    # generer k solutions
-    f = open("cantilever.dat", "w");
+
+    # solutions
+    solution = zeros(step,4)
+    indV1 = 1
+    indV2 = 2
+    indF1 = 3
+    indF2 = 4
+    # -------------------------------------------------------
+
+    # generer step solutions
+    f = open("dat/cantilever.dat", "w");
     for i = 1:step
+        #println()
         cond = 0
         while cond == 0
             # generer d
@@ -178,14 +191,14 @@ function cantileverProblem()
             # generer l
             l = rand(Uniform(200, 1000))
 
-            l = round(l,2)
-            d = round(d,2)
-
+            l = round(l,3)
+            d = round(d,3)
             rhoMax = (32 * P * l)/(pi * d^3)
-            rhoMax = round(rhoMax,2)
-
+            # delta
             delta = (64 * P * l^3)/(3 * E * pi * d^4)
-            delta = round(delta,2)
+            rhoMax = round(rhoMax,3)
+            delta = round(delta,3)
+
 
             if rhoMax <= Sy && delta <= deltaMax
                 cond = 1
@@ -193,21 +206,113 @@ function cantileverProblem()
 
         end
         # definition des fonctions
-        f1 = (rho * pi * d^2 * l) / 4
+        f1 = (rho * pi * (d*0.001)^2 * (l*0.001)) / 4
         f2 = delta
 
         f1 = round(f1,3)
         f2 = round(f2,3)
-         println("$i \t $l \t $d \t $f1 \t $f2\n");
-         write(f,"$i \t $l \t $d \t $f1 \t $f2\n");
+         # println("$i \t $d  \t $l \t $f1 \t $f2\n");
+         write(f,"$i \t $d \t $l  \t $f1 \t $f2\n");
+         solution[i,indV1] = d
+         solution[i,indV2] = l
+         solution[i,indF1] = f1
+         solution[i,indF2] = f2
     end
     close(f);
+    solution = lexicographically(solution,indF1)
+    # affichageMatrice(solution)
+    yn = filteringYN(solution,indF1,indF2)
+    print("\t");print(length(yn[:,1]));println(" points found :\n")
+    #affichageMatrice(yn)
+    yns,ynn = suportedPoints(yn,indF1,indF2)
+    print("\t");print(length(yns[:,1]));println(" points found :\n")
+    affichageMatrice(yns)
+    #
+    println("\n$step points generated : \n")
+    print(length(yn[:,1]));println(" non-dominated points\n")
+    print(length(yns[:,1]));println(" Supported points\n")
+    print(length(ynn[:,1]));println(" Non-Supported points\n")
+    #
+    #-----------------------------------------------------------------------------------------
+    # println(" Graphique : ")
+    f = open("dat/cantileverYN.dat", "w");
+    for i = 1:length(yn[:,1])
+        x1  = yn[i,indV1]
+        x2  = yn[i,indV2]
+        f1  = yn[i,indF1]
+        f2  = yn[i,indF2]
+        write(f,"$i \t $x1 \t $x2 \t $f1 \t $f2\n");
+    end
+    close(f);
+    f = open("dat/cantileverns.dat", "w");
+    for i = 1:length(yns[:,1])
+        x1  = yns[i,indV1]
+        x2  = yns[i,indV2]
+        f1  = yns[i,indF1]
+        f2  = yns[i,indF2]
+        write(f,"$i \t $x1 \t $x2 \t $f1 \t $f2\n");
+    end
+    close(f);
+    #-----------------------------------------------------------------------------------------
+
+    println("\n *** Fin de la function ***")
+
+end
+
+function gearTrain()
+    println("-------------------------------------------------------------------")
+    println("\t \t**** \t  Gear Train \t *****\t \t")
+    println("-------------------------------------------------------------------")
+    # definition de la variable et son domaine de variation
+    t1 = t2 = t3 = t4 = 0.0
+    # definition du pas de calcul
+    step  = 10000;
+
+    f1 = f2 = 0.0
 
     # solutions
-    # solution = zeros(step,4)
-    # indV1 = 1
-    # indV2 = 2
-    # indF1 = 3
-    # indF2 = 4
+    solution = zeros(step,4)
+    indV1 = 1
+    indV2 = 2
+    indF1 = 3
+    indF2 = 4
+    # -------------------------------------------------------
 
+    # generer step solutions
+    f = open("dat/gearTrain.dat", "w");
+    for i = 1:step
+        println(" i = $i")
+        cond = 0
+        j = 1
+        while cond == 0
+
+            #println("tentative : $j")
+            # generer les ti
+            t1 = rand(12:60)
+            t2 = rand(12:60)
+            t3 = rand(12:60)
+            t4 = rand(12:60)
+            println("t1 = $t1\t t2 = $t2 , \t t3 = $t3, \t t4= $t4")
+            # s'assurer que c'est des entiers
+            # Conditions
+            # definition des fonctions
+            f1 = abs(6.931 - (t2*t4 / t1*t3))
+            f2 = max(t1,t2,t3,t4)
+
+            f1 = round(f1,3)
+            f2 = round(f2,3)
+
+            if f1/6.931 <= 0.5
+                cond = 1
+            end
+            j = j+1
+        end
+         println("$i \t $d  \t $l \t $f1 \t $f2\n");
+         write(f,"$i \t $d \t $l  \t $f1 \t $f2\n");
+         solution[i,indV1] = d
+         solution[i,indV2] = l
+         solution[i,indF1] = f1
+         solution[i,indF2] = f2
+    end
+    close(f);
 end

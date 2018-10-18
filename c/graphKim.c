@@ -13,10 +13,9 @@ int main(void)
   fprintf(f, " set title \"MOP 1: Kim\" \n");
   fprintf(f, " set xlabel \" z1 \" \n");
   fprintf(f, " set ylabel \" z2 \" \n");
-  // fprintf(f, " plot \"kim.dat\" using 4:5 notitle with points lt -1 linewidth 2\n");
-  //fprintf(f, " plot \"kimYN.dat\" using 4:5 notitle with dots lt rgb \"green\" \n");
-  fprintf(f, " plot \"cantilever.dat\" using 4:5 notitle with lines lt rgb \"red\" \n");
-  //fprintf(f, " replot \"kimyns.dat\" using 4:5 notitle with dots lt rgb \"red\" \n");
+  fprintf(f, " plot \"kim.dat\" using 4:5 notitle with points lt -1 linewidth 2\n");
+  fprintf(f, " replot \"kimYN.dat\" using 4:5 notitle with dots lt rgb \"green\" \n");
+  fprintf(f, " replot \"kimyns.dat\" using 4:5 notitle with dots lt rgb \"red\" \n");
   fflush(f);
   // terminer l'envoi de commandes et fermer gnuplot
   sleep(60);
