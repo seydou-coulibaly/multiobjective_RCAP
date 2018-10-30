@@ -1,5 +1,5 @@
 include("function.jl")
-#include("filtrage.jl")
+# Decommentez la fonction souhaitée
 #schafferFunction()
 #kimFunction()
 cantileverProblem()

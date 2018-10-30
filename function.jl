@@ -234,6 +234,7 @@ function cantileverProblem()
     print(length(ynn[:,1]));println(" Non-Supported points\n")
     #
     #-----------------------------------------------------------------------------------------
+    # Enregistrement dans fichier
     # println(" Graphique : ")
     f = open("dat/cantileverYN.dat", "w");
     for i = 1:length(yn[:,1])
@@ -253,6 +254,43 @@ function cantileverProblem()
         write(f,"$i \t $x1 \t $x2 \t $f1 \t $f2\n");
     end
     close(f);
+
+    #--------------------------------------------------------------------------------------------------
+    # Bound sets
+
+    idealPoint = [yn[1,indF1],yn[length(yn[:,1]),indF2]]
+    antiIdealPoint = [maximum(solution[:,indF1]),maximum(solution[:,indF2])]
+    nadirPoint = [yn[length(yn[:,1]),indF1],yn[1,indF2]]
+    print("Point ideal : ");println(idealPoint)
+    print("Point nadir : ");println(nadirPoint)
+    print("Point anti-ideal : ");println(antiIdealPoint)
+
+    nbBorneSup = (length(yns[:,1])-1)
+    borneSup = zeros(nbBorneSup,2)
+    for i = 1:nbBorneSup
+        borneSup[i,1] = yns[i+1,indF1]
+        borneSup[i,2] = yns[i,indF2]
+    end
+    println("\nBorne sup :")
+    affichageMatrice(borneSup)
+
+
+    #-----------------------------------------------------------------------------------------*
+    # Graphique with pyplot
+    fig, ax = subplots()
+    ax[:plot](solution[:,indF1],solution[:,indF2],linestyle="dotted",linewidth=0,marker=".",markersize=1,color="black")
+    ax[:plot](ynn[:,indF1],ynn[:,indF2],linestyle="-.",linewidth=0,marker="o",markersize=4,color="green",label="non Supported point")
+    ax[:plot](yns[:,indF1],yns[:,indF2],linestyle="-.",linewidth=1,marker="o",markersize=5,color="red",label="Supported points")
+    ax[:plot](idealPoint[1],idealPoint[2],linestyle="-.",linewidth=1,marker="o",markersize=5,color="b",label="ideal point")
+    ax[:plot](nadirPoint[1],nadirPoint[2],linestyle="-.",linewidth=1,marker="o",markersize=5,color="b",label="nadir point")
+    ax[:plot](antiIdealPoint[1],antiIdealPoint[2],linestyle="-.",linewidth=1,marker="o",markersize=5,color="y",label="anti-ideal point")
+
+    ax[:plot](borneSup[:,1],borneSup[:,2],linestyle="-.",linewidth=0,marker="o",markersize=5,color="orange", label="upper bound")
+    #legend()
+    xlabel("z1 : weight (kg) ");
+    ylabel("z2 : deflection (mm) ");
+    title("cantilever design problem (Objective space)");
+
     #-----------------------------------------------------------------------------------------
 
     println("\n *** Fin de la function ***")
@@ -271,48 +309,130 @@ function gearTrain()
     f1 = f2 = 0.0
 
     # solutions
-    solution = zeros(step,4)
+    solution = zeros(step,6)
     indV1 = 1
     indV2 = 2
-    indF1 = 3
-    indF2 = 4
+    indV3 = 3
+    indV4 = 4
+    indF1 = 5
+    indF2 = 6
     # -------------------------------------------------------
 
     # generer step solutions
     f = open("dat/gearTrain.dat", "w");
     for i = 1:step
-        println(" i = $i")
+        # println(" i = $i")
         cond = 0
         j = 1
         while cond == 0
 
             #println("tentative : $j")
             # generer les ti
-            t1 = rand(12:60)
+            t1 = rand(12:30)
             t2 = rand(12:60)
-            t3 = rand(12:60)
-            t4 = rand(12:60)
-            println("t1 = $t1\t t2 = $t2 , \t t3 = $t3, \t t4= $t4")
+            t3 = rand(12:17)
+            t4 = rand(20:60)
+            # print("t1 = $t1\t t2 = $t2 , \t t3 = $t3, \t t4= $t4")
             # s'assurer que c'est des entiers
             # Conditions
             # definition des fonctions
-            f1 = abs(6.931 - (t2*t4 / t1*t3))
+            f1 = abs(6.931 - ((t2*t4) / (t1*t3)))
             f2 = max(t1,t2,t3,t4)
 
             f1 = round(f1,3)
             f2 = round(f2,3)
+            # println("\tf1 = $f1")
 
             if f1/6.931 <= 0.5
                 cond = 1
+                # println("cond1 active")
             end
             j = j+1
         end
-         println("$i \t $d  \t $l \t $f1 \t $f2\n");
-         write(f,"$i \t $d \t $l  \t $f1 \t $f2\n");
-         solution[i,indV1] = d
-         solution[i,indV2] = l
+         # println("$i \t $t1 \t $t2 \t $t3 \t $t4  \t $f1 \t $f2\n");
+         write(f,"$i \t $t1 \t $t2 \t $t3 \t $t4  \t $f1 \t $f2\n");
+         solution[i,indV1] = t1
+         solution[i,indV2] = t2
+         solution[i,indV3] = t3
+         solution[i,indV4] = t4
          solution[i,indF1] = f1
          solution[i,indF2] = f2
     end
     close(f);
+    solution = lexicographically(solution,indF1)
+    # affichageMatrice(solution)
+    yn = filteringYN(solution,indF1,indF2)
+    print("\t");print(length(yn[:,1]));println(" points found :\n")
+    affichageMatrice(yn)
+    yns,ynn = suportedPoints(yn,indF1,indF2)
+    print("\t");print(length(yns[:,1]));println(" points found :\n")
+    affichageMatrice(yns)
+    #
+    println("\n$step points generated : \n")
+    print(length(yn[:,1]));println(" non-dominated points\n")
+    print(length(yns[:,1]));println(" Supported points\n")
+    print(length(ynn[:,1]));println(" Non-Supported points\n")
+    #-----------------------------------------------------------------------------------------
+    # Enregistrement dans fichier
+    # println(" Graphique : ")
+    f = open("dat/gearYN.dat", "w");
+    for i = 1:length(yn[:,1])
+        x1  = yn[i,indV1]
+        x2  = yn[i,indV2]
+        f1  = yn[i,indF1]
+        f2  = yn[i,indF2]
+        write(f,"$i \t $x1 \t $x2 \t $f1 \t $f2\n");
+    end
+    close(f);
+    f = open("dat/gear.dat", "w");
+    for i = 1:length(yns[:,1])
+        x1  = yns[i,indV1]
+        x2  = yns[i,indV2]
+        f1  = yns[i,indF1]
+        f2  = yns[i,indF2]
+        write(f,"$i \t $x1 \t $x2 \t $f1 \t $f2\n");
+    end
+    close(f);
+
+
+    #--------------------------------------------------------------------------------------------------
+    # Bound sets
+
+    idealPoint = [yn[1,indF1],yn[length(yn[:,1]),indF2]]
+    antiIdealPoint = [maximum(solution[:,indF1]),maximum(solution[:,indF2])]
+    nadirPoint = [yn[length(yn[:,1]),indF1],yn[1,indF2]]
+    print("Point ideal : ");println(idealPoint)
+    print("Point nadir : ");println(nadirPoint)
+    print("Point anti-ideal : ");println(antiIdealPoint)
+
+    nbBorneSup = (length(yns[:,1])-1)
+    borneSup = zeros(nbBorneSup,2)
+    for i = 1:nbBorneSup
+        borneSup[i,1] = yns[i+1,indF1]
+        borneSup[i,2] = yns[i,indF2]
+    end
+    println("\nBorne sup :")
+    affichageMatrice(borneSup)
+
+
+    #-----------------------------------------------------------------------------------------
+    # Graphique with pyplot
+    fig, ax = subplots()
+    ax[:plot](solution[:,indF1],solution[:,indF2],linestyle="dotted",linewidth=0,marker=".",markersize=1,color="black")
+    ax[:plot](ynn[:,indF1],ynn[:,indF2],linestyle="-.",linewidth=0,marker="o",markersize=4,color="green",label="non Supported point")
+    ax[:plot](yns[:,indF1],yns[:,indF2],linestyle="-.",linewidth=1,marker="o",markersize=5,color="red",label="Supported points")
+    ax[:plot](idealPoint[1],idealPoint[2],linestyle="-.",linewidth=1,marker="o",markersize=5,color="b",label="ideal point")
+    ax[:plot](nadirPoint[1],nadirPoint[2],linestyle="-.",linewidth=1,marker="o",markersize=5,color="b",label="nadir point")
+    ax[:plot](antiIdealPoint[1],antiIdealPoint[2],linestyle="-.",linewidth=1,marker="o",markersize=5,color="y",label="anti-ideal point")
+
+    ax[:plot](borneSup[:,1],borneSup[:,2],linestyle="-.",linewidth=0,marker="o",markersize=5,color="orange", label="upper bound")
+    #legend()
+
+    xlabel("z1 : error ");
+    ylabel("z2 : maximum diametre (cm) ");
+    title("Gear objective (Objective space)");
+
+    #-----------------------------------------------------------------------------------------
+
+    println("\n *** Fin de la function ***")
 end
