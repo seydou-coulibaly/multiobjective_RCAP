@@ -1,5 +1,5 @@
 function filteringYN(solution,indF1,indF2)
-    println("\n************************* \t Non dominated Points \t *************************\n")
+    # println("\n************************* \t Non dominated Points \t *************************\n")
     # on suppose  solution est deja bien trié suivant f1 grâce à la function lexicographically
     # yn est une copie de l'ens solution
     yn = copy(solution)

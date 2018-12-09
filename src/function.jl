@@ -1,5 +1,4 @@
-using PyPlot
-using Distributions
+# include des fonction de filtrage
 include("filtrage.jl")
 function schafferFunction()
     println("-------------------------------------------------------------------")
