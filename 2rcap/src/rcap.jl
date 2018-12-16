@@ -1,6 +1,6 @@
 using vOptGeneric
 using vOptSpecific
-# using GLPK,GLPKMathProgInterface
+using GLPK,GLPKMathProgInterface
 using LinearAlgebra
 using PyPlot
 # vOptGeneric est juste utiliser pour tester le resultat obtenu
@@ -8,24 +8,8 @@ using PyPlot
 m = vModel(solver = GLPKSolverMIP())
 # using CPLEX
 # m = vModel(solver = CplexSolver())
-c1 = [13 14  7 2 11
-      5  10 11 7 10
-      7 19 9 16 19
-      3 19 10 0 6
-      12 9 2 4 15]
-c2 = [ 1 13 15 18 3
-       0 3 17 8 6
-       9 5 8 0 4
-       18 19 3 19 7
-       2 3 19 12 15]
-w = [1 2 3 2 1
-     3 2 1 2 3
-     3 3 3 3 3
-     4 1 4 1 4
-     1 5 1 5 1]
-b = 11
-(n,n) = size(c1)
 function rcapGenerique(m,c1,c2,w,b)
+    (n,n) = size(c1)
     @variable(m, x[1:n,1:n], Bin)
     @addobjective(m, Min, dot(x, c1))
     @addobjective(m, Min, dot(x, c2))

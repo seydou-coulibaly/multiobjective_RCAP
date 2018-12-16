@@ -1,24 +1,6 @@
 include("filtrage.jl")
 include("rcap.jl")
-Random.seed!(1)
-c1 = [13 14  7 2 11
-      5  10 11 7 10
-      7 19 9 16 19
-      3 19 10 0 6
-      12 9 2 4 15]
-c2 = [ 1 13 15 18 3
-       0 3 17 8 6
-       9 5 8 0 4
-       18 19 3 19 7
-       2 3 19 12 15]
-w = [1 2 3 2 1
-     3 2 1 2 3
-     3 3 3 3 3
-     4 1 4 1 4
-     1 5 1 5 1]
-b = 11
-(n,n) = size(c1)
-colors = ["g","c","m","y","k","w"]
+Random.seed!(3)
 mutable struct Individu
     id::Array{Int,1}
     solution::Array{Array{Int,1},1}
@@ -27,12 +9,9 @@ mutable struct Individu
     rank::Array{Int,1}
     crowding::Array{Float64,1}
 end
-function nsga2()
-    # Algorithms inputs
-    popsize = 100
-    nGenerations = 50
-    Pc = 0.70
-    Pm = 0.20
+function nsga2(c1,c2,w,b,popsize,nGenerations,Pc,Pm)
+    (n,n) = size(c1)
+    colors = ["g","c","m","y","k","w"]
     # Generate nIndividus : initial population --------------------------------------------------------------------------------------
     println()
     println("**************\t INITIALISATION OF POPULATION \t**************")
@@ -57,12 +36,12 @@ function nsga2()
 
     #========================================================================================================#
     # PLOT
-    f1 = population.obj1
-    f2 = population.obj2
-    xlabel("z1")
-    ylabel("z2")
-    plot(f1,f2,"bx", markersize = "6")
-    !isinteractive() && show()
+    # f1 = population.obj1
+    # f2 = population.obj2
+    # xlabel("z1")
+    # ylabel("z2")
+    # plot(f1,f2,"bx", markersize = "6")
+    # !isinteractive() && show()
     #========================================================================================================#
 
     if popToTake < popsize
@@ -96,7 +75,7 @@ function nsga2()
     affichage(population)
     # Ranking and crowding  ------------------------------------------------------------------------------------------------------------
     # println()
-    ranking(population)
+    ranking(population,w,b)
     # # affichage(population)
     # println()
     crowding(population)
@@ -164,7 +143,7 @@ function nsga2()
         R = combinedPopulation(population,Offspring)
         initRankandCrowdind(R)
         # affichage(R)
-        ranking(R)
+        ranking(R,w,b)
         crowding(R)
         # affichage(R)
         Elitims(R,population)
@@ -193,38 +172,38 @@ function nsga2()
     for i= 1:front1
         individu  = population.solution[i]
         # Eviter d'afficher les solutions equivalentes
-        if !in(individu,tabSolution)
-            push!(X,decode(individu))
-            push!(tabSolution,individu)
-            # Affichage
-            print(population.solution[i])
-            print(" | Z1 = ")
-            print(population.obj1[i])
-            print("\tZ2 = ")
-            print(population.obj2[i])
-            print("\n")
-            if checkFeasibiliy(individu,w,b)
+        if checkFeasibiliy(individu,w,b)
+            if !in(individu,tabSolution)
+                push!(X,decode(individu))
+                push!(tabSolution,individu)
+                # Affichage
+                print(population.solution[i])
+                print(" | Z1 = ")
+                print(population.obj1[i])
+                print("\tZ2 = ")
+                print(population.obj2[i])
+                print("\n")
                 check = check+1
+                #========================================================================================================#
+                # PLOT
+                f1 = population.obj1[i]
+                f2 = population.obj2[i]
+                xlabel("z1")
+                ylabel("z2")
+                plot(f1,f2,"rx", markersize = "6")
+                !isinteractive() && show()
+                #========================================================================================================#
             end
         end
-        #========================================================================================================#
-        # PLOT
-        f1 = population.obj1[i]
-        f2 = population.obj2[i]
-        xlabel("z1")
-        ylabel("z2")
-        plot(f1,f2,"rx", markersize = "6")
-        !isinteractive() && show()
-        #========================================================================================================#
     end
     front1 = length(tabSolution)
     println()
-    println("-----------------------------------------------")
-    println("Size of Yn without equivalent solution: $front1")
-    if check == front1
-        println("all solutions in yn are valid (knapsack inequality)")
+    println
+    if !(check == 0)
+        println("Size of Yn: $front1")
+        println("SOLUTIONS in Yn are VALID (satisfy knapsack inequality)")
     else
-        println("some solutions don't satisfy knapsack inequality")
+        println("ANY FEASIBLE SOLUTIONS FOUND (knapsack inequality)")
     end
     println("-----------------------------------------------")
 
@@ -401,7 +380,7 @@ end
 function checkFeasibiliy(solution,w,b)
     return (dot(decode(solution),w) <= b)
 end
-function ranking(population)
+function ranking(population,w,b)
     rankFeasibleSolution   = zeros(0,4)
     rankInfeasibleSolution = zeros(0,4)
     # Initialise population rank to 0
@@ -420,17 +399,28 @@ function ranking(population)
     indrank = 4 # indice rank dans les tables
     # rankFeasibleSolution   = lexicographically(rankFeasibleSolution,indF1)
     # rankInfeasibleSolution = lexicographically(rankInfeasibleSolution,indF1)
-    # println()
-    # affichageMatrice(rankFeasibleSolution)
+    println()
+    affichageMatrice(rankFeasibleSolution)
 
-    frontLevel(rankFeasibleSolution,indF1,indF2,indrank)
-    frontLevel(rankInfeasibleSolution,indF1,indF2,indrank)
+    if !isempty(rankFeasibleSolution)
+            frontLevel(rankFeasibleSolution,indF1,indF2,indrank)
+    end
+
+    if !isempty(rankInfeasibleSolution)
+        frontLevel(rankInfeasibleSolution,indF1,indF2,indrank)
+    end
 
     # Fusionner les deux tables de rangs
-    infeseableFront = maximum(rankFeasibleSolution[:,indrank])
+    if !isempty(rankFeasibleSolution)
+            infeseableFront = maximum(rankFeasibleSolution[:,indrank])
+        else
+            infeseableFront = 0
+    end
     # println(infeseableFront)
-    for i = 1:length(rankInfeasibleSolution[:,1])
-        rankInfeasibleSolution[i,indrank] = rankInfeasibleSolution[i,indrank] + infeseableFront
+    if !isempty(rankInfeasibleSolution)
+        for i = 1:length(rankInfeasibleSolution[:,1])
+            rankInfeasibleSolution[i,indrank] = rankInfeasibleSolution[i,indrank] + infeseableFront
+        end
     end
     popRank = vcat(rankFeasibleSolution,rankInfeasibleSolution)
     # Remplir la table d'origine (population) et la retourner
