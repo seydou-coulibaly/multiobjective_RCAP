@@ -1,6 +1,6 @@
-function filteringYN(solution,indF1,indF2)
+function dominance(solution,indF1,indF2)
     # println("----------------------------------------------------------------------")
-    # println("\n************************* \t Non dominated Points \t *************************\n")
+    println("\n************************* \t Non dominated Points \t *************************\n")
     # on suppose  solution est deja bien trié suivant f1 grâce à la function lexicographically
     # yn est une copie de l'ens solution
     solution = lexicographically(solution,indF1)
@@ -132,23 +132,3 @@ function affichageMatrice(matrice)
         println()
     end
 end
-# yn = [1 8 ;
-#       3 6 ;
-#       3 7 ;
-#       4 7 ;
-#       2 5 ;
-#       2 6 ;
-#       4 4 ;
-#       8 3 ;
-#       1.5 7.5 ;
-#       2.5 4.8 ;
-#       2.5 4.1 ;
-#       1.1 7]
-# yn = lexicographically(yn,1)
-# println()
-# affichageMatrice(yn)
-# yns,ynn = suportedPoints(yn,1,2)
-# println("Supported")
-# affichageMatrice(yns)
-# println("non Supported")
-# affichageMatrice(ynn)

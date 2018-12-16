@@ -1,4 +1,5 @@
 include("filtrage.jl")
+include("rcap.jl")
 Random.seed!(1)
 c1 = [13 14  7 2 11
       5  10 11 7 10
@@ -17,7 +18,7 @@ w = [1 2 3 2 1
      1 5 1 5 1]
 b = 11
 (n,n) = size(c1)
-
+colors = ["g","c","m","y","k","w"]
 mutable struct Individu
     id::Array{Int,1}
     solution::Array{Array{Int,1},1}
@@ -28,8 +29,8 @@ mutable struct Individu
 end
 function nsga2()
     # Algorithms inputs
-    popsize = 1000
-    nGenerations = 20
+    popsize = 100
+    nGenerations = 50
     Pc = 0.70
     Pm = 0.20
     # Generate nIndividus : initial population --------------------------------------------------------------------------------------
@@ -38,18 +39,66 @@ function nsga2()
     println()
     # println("Identifiant \t Encodage-solution \t Obj1 \t Obj2 \t Rank \t Crowding")
     population = Individu([],[],[],[],[],[])
-    for ind = 1:popsize
-         individu = Random.shuffle(Vector(1:n))
+    #========================================================================================================#
+    # Part of using vOptSpecific
+    #========================================================================================================#
+
+    ########## utilisation de vOptSpecific pour la production de solution initial #########
+    ####### On va completer le reste de poposive par random ######
+    rcapSolution = rcapSpecific(c1,c2)
+    nbRcapLAP = length(rcapSolution)
+    popToTake = min(nbRcapLAP,popsize)
+    for ind = 1:popToTake
+         individu = rcapSolution[ind]
          objective_1 = evalObjective(individu,c1)
          objective_2 = evalObjective(individu,c2)
          add(population,ind,individu,objective_1,objective_2,0,0)
     end
+
+    #========================================================================================================#
+    # PLOT
+    f1 = population.obj1
+    f2 = population.obj2
+    xlabel("z1")
+    ylabel("z2")
+    plot(f1,f2,"bx", markersize = "6")
+    !isinteractive() && show()
+    #========================================================================================================#
+
+    if popToTake < popsize
+        # Faudra completer popsize, par random
+        indPop = length(population.id)
+        # println("indP = $indPop")
+        for ind = indPop+1:popsize
+             individu = Random.shuffle(Vector(1:n))
+             objective_1 = evalObjective(individu,c1)
+             objective_2 = evalObjective(individu,c2)
+             add(population,ind,individu,objective_1,objective_2,0,0)
+        end
+    end
+    #========================================================================================================#
+
+    # whitout vOptSpecific, active this part, and desactive the part below
+
+    # for ind = 1:popsize
+    #      individu = Random.shuffle(Vector(1:n))
+    #      objective_1 = evalObjective(individu,c1)
+    #      objective_2 = evalObjective(individu,c2)
+    #      add(population,ind,individu,objective_1,objective_2,0,0)
+    # end
+
+    # f1 = population.obj1
+    # f2 = population.obj2
+    # xlabel("z1")
+    # ylabel("z2")
+    # plot(f1,f2,"bx", markersize = "6")
+    # !isinteractive() && show()
     affichage(population)
     # Ranking and crowding  ------------------------------------------------------------------------------------------------------------
     # println()
     ranking(population)
-    # affichage(population)
-    println()
+    # # affichage(population)
+    # println()
     crowding(population)
     # affichage(population)
     println("#### Ranking ####")
@@ -121,6 +170,15 @@ function nsga2()
         Elitims(R,population)
         println("#### New generation producted ####")
         affichage(population)
+        #========================================================================================================#
+        # PLOT
+        f1 = population.obj1
+        f2 = population.obj2
+        xlabel("z1")
+        ylabel("z2")
+        plot(f1,f2,colors[rand(1:6)]*"x", markersize = "6")
+        !isinteractive() && show()
+        #========================================================================================================#
     end
     # retourner les individus de rang 1
     front1 = length(findall(x->x==1,population.rank))
@@ -149,6 +207,15 @@ function nsga2()
                 check = check+1
             end
         end
+        #========================================================================================================#
+        # PLOT
+        f1 = population.obj1[i]
+        f2 = population.obj2[i]
+        xlabel("z1")
+        ylabel("z2")
+        plot(f1,f2,"rx", markersize = "6")
+        !isinteractive() && show()
+        #========================================================================================================#
     end
     front1 = length(tabSolution)
     println()
@@ -387,7 +454,7 @@ function frontLevel(matriceOfpopulation,indF1,indF2,indrank)
     while !(isempty(tableRng))
         # println()
         # affichageMatrice(tableRng)
-        yn = filteringYN(tableRng,indF1,indF2)
+        yn = dominance(tableRng,indF1,indF2)
         sizeYn = length(yn[:,1])
         for i = 1:sizeYn
             # println(yn[i,1])

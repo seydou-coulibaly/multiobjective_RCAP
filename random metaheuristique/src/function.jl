@@ -24,7 +24,7 @@ function schafferFunction()
 
     # -------------------------------------------------------
 
-    f = open("Schaffer.dat", "w");
+    f = open("../dat/Schaffer.dat", "w");
     # println("   i      x     f1     f2\n");
     for i = 0:step
         x = xInf + i * xDelta;
@@ -44,22 +44,35 @@ function schafferFunction()
     solution = lexicographically(solution,indF1)
     println("\tx\tf1\tf2")
     affichageMatrice(solution)
-    yn = filteringYN(solution,indF1,indF2)
+    yn = dominance(solution,indF1,indF2)
     print(length(yn[:,1]))
     print("\t");print(length(yn[:,1]));println(" points found :\n")
     affichageMatrice(yn)
+    #=====================================================================================#
     # println(" Graphique : ")
-    # f = open("SchafferYN.dat", "w");
-    # for i = 1:length(yn[:,1])
-    #     x  = yn[i,indV1]
-    #     f1 = yn[i,indF1]
-    #     f2 = yn[i,indF2]
-    #     write(f,"$i \t $x \t $f1 \t $f2\n");
-    # end
+    f = open("../dat/SchafferYN.dat", "w");
+    for i = 1:length(yn[:,1])
+        x  = yn[i,indV1]
+        f1 = yn[i,indF1]
+        f2 = yn[i,indF2]
+        write(f,"$i \t $x \t $f1 \t $f2\n");
+    end
     # close(f);
     # ylabel('F2')
     # ylabel('F1')
     # plot(solution[:,indF1],solution[:,indF2],color="red",linewidth=2.0)
+    #-----------------------------------------------------------------------------------------*
+    # Graphique with pyplot
+    fig, ax = subplots()
+    ax[:plot](solution[:,indF1],solution[:,indF2],linestyle="dotted",linewidth=0,marker=".",markersize=1,color="black")
+    ax[:plot](yn[:,indF1],yn[:,indF2],linestyle="-.",linewidth=1,marker="o",markersize=5,color="red",label="Non dominated points")
+    #legend()
+    xlabel("z1");
+    ylabel("z2");
+    title("Schaffer function (Objective space)");
+    legend()
+
+    #-----------------------------------------------------------------------------------------
     println("\nFin de la fonction")
 
 end
@@ -89,7 +102,7 @@ function kimFunction()
     indF2 = 4
     # -------------------------------------------------------
 
-    f = open("kim.dat", "w");
+    f = open("../dat/kim.dat", "w");
     # println("   i      x     f1     f2\n");
     for i = 1:step
         x1 = x1Inf + i * xDelta;
@@ -116,7 +129,7 @@ function kimFunction()
     solution = lexicographically(solution,indF1)
     println("\tx1\tx2\tf1\t\tf2")
     affichageMatrice(solution)
-    yn = filteringYN(solution,indF1,indF2)
+    yn = dominance(solution,indF1,indF2)
     print("\t");print(length(yn[:,1]));println(" points found :\n")
     affichageMatrice(yn)
 
@@ -130,7 +143,7 @@ function kimFunction()
 
     #-----------------------------------------------------------------------------------------
     # println(" Graphique : ")
-    f = open("kimYN.dat", "w");
+    f = open("../dat/kimYN.dat", "w");
     for i = 1:length(yn[:,1])
         x1  = yn[i,indV1]
         x2  = yn[i,indV2]
@@ -139,7 +152,7 @@ function kimFunction()
         write(f,"$i \t $x1 \t $x2 \t $f1 \t $f2\n");
     end
     close(f);
-    f = open("kimyns.dat", "w");
+    f = open("../dat/kimyns.dat", "w");
     for i = 1:length(yns[:,1])
         x1  = yns[i,indV1]
         x2  = yns[i,indV2]
@@ -148,6 +161,19 @@ function kimFunction()
         write(f,"$i \t $x1 \t $x2 \t $f1 \t $f2\n");
     end
     close(f);
+    #-----------------------------------------------------------------------------------------*
+    # Graphique with pyplot
+    fig, ax = subplots()
+    ax[:plot](solution[:,indF1],solution[:,indF2],linestyle="dotted",linewidth=0,marker=".",markersize=1,color="black")
+    ax[:plot](ynn[:,indF1],ynn[:,indF2],linestyle="-.",linewidth=0,marker="o",markersize=4,color="green",label="non Supported point")
+    ax[:plot](yns[:,indF1],yns[:,indF2],linestyle="-.",linewidth=1,marker="o",markersize=5,color="red",label="Supported points")
+    #legend()
+    xlabel("z1");
+    ylabel("z2");
+    title("Kim's function (Objective space)");
+    legend()
+
+    #-----------------------------------------------------------------------------------------
     #-----------------------------------------------------------------------------------------
 
     println("\nFin de la fonction")
@@ -180,7 +206,7 @@ function cantileverProblem()
     # -------------------------------------------------------
 
     # generer step solutions
-    f = open("dat/cantilever.dat", "w");
+    f = open("../dat/cantilever.dat", "w");
     for i = 1:step
         #println()
         cond = 0
@@ -220,7 +246,7 @@ function cantileverProblem()
     close(f);
     solution = lexicographically(solution,indF1)
     # affichageMatrice(solution)
-    yn = filteringYN(solution,indF1,indF2)
+    yn = dominance(solution,indF1,indF2)
     print("\t");print(length(yn[:,1]));println(" points found :\n")
     #affichageMatrice(yn)
     yns,ynn = suportedPoints(yn,indF1,indF2)
@@ -235,7 +261,7 @@ function cantileverProblem()
     #-----------------------------------------------------------------------------------------
     # Enregistrement dans fichier
     # println(" Graphique : ")
-    f = open("dat/cantileverYN.dat", "w");
+    f = open("../dat/cantileverYN.dat", "w");
     for i = 1:length(yn[:,1])
         x1  = yn[i,indV1]
         x2  = yn[i,indV2]
@@ -244,7 +270,7 @@ function cantileverProblem()
         write(f,"$i \t $x1 \t $x2 \t $f1 \t $f2\n");
     end
     close(f);
-    f = open("dat/cantileverns.dat", "w");
+    f = open("../dat/cantileverns.dat", "w");
     for i = 1:length(yns[:,1])
         x1  = yns[i,indV1]
         x2  = yns[i,indV2]
@@ -284,8 +310,8 @@ function cantileverProblem()
     ax[:plot](nadirPoint[1],nadirPoint[2],linestyle="-.",linewidth=1,marker="o",markersize=5,color="b",label="nadir point")
     ax[:plot](antiIdealPoint[1],antiIdealPoint[2],linestyle="-.",linewidth=1,marker="o",markersize=5,color="y",label="anti-ideal point")
 
-    ax[:plot](borneSup[:,1],borneSup[:,2],linestyle="-.",linewidth=0,marker="o",markersize=5,color="orange", label="upper bound")
-    #legend()
+    ax[:plot](borneSup[:,1],borneSup[:,2],linestyle="-.",linewidth=0,marker="o",markersize=5,color="orange", label="upper bound (nadir local)")
+    legend()
     xlabel("z1 : weight (kg) ");
     ylabel("z2 : deflection (mm) ");
     title("cantilever design problem (Objective space)");
@@ -318,7 +344,7 @@ function gearTrain()
     # -------------------------------------------------------
 
     # generer step solutions
-    f = open("dat/gearTrain.dat", "w");
+    f = open("../dat/gearTrain.dat", "w");
     for i = 1:step
         # println(" i = $i")
         cond = 0
@@ -360,7 +386,7 @@ function gearTrain()
     close(f);
     solution = lexicographically(solution,indF1)
     # affichageMatrice(solution)
-    yn = filteringYN(solution,indF1,indF2)
+    yn = dominance(solution,indF1,indF2)
     print("\t");print(length(yn[:,1]));println(" points found :\n")
     affichageMatrice(yn)
     yns,ynn = suportedPoints(yn,indF1,indF2)
@@ -374,7 +400,7 @@ function gearTrain()
     #-----------------------------------------------------------------------------------------
     # Enregistrement dans fichier
     # println(" Graphique : ")
-    f = open("dat/gearYN.dat", "w");
+    f = open("../dat/gearYN.dat", "w");
     for i = 1:length(yn[:,1])
         x1  = yn[i,indV1]
         x2  = yn[i,indV2]
@@ -383,7 +409,7 @@ function gearTrain()
         write(f,"$i \t $x1 \t $x2 \t $f1 \t $f2\n");
     end
     close(f);
-    f = open("dat/gear.dat", "w");
+    f = open("../dat/gear.dat", "w");
     for i = 1:length(yns[:,1])
         x1  = yns[i,indV1]
         x2  = yns[i,indV2]
@@ -424,9 +450,8 @@ function gearTrain()
     ax[:plot](nadirPoint[1],nadirPoint[2],linestyle="-.",linewidth=1,marker="o",markersize=5,color="b",label="nadir point")
     ax[:plot](antiIdealPoint[1],antiIdealPoint[2],linestyle="-.",linewidth=1,marker="o",markersize=5,color="y",label="anti-ideal point")
 
-    ax[:plot](borneSup[:,1],borneSup[:,2],linestyle="-.",linewidth=0,marker="o",markersize=5,color="orange", label="upper bound")
-    #legend()
-
+    ax[:plot](borneSup[:,1],borneSup[:,2],linestyle="-.",linewidth=0,marker="o",markersize=5,color="orange", label="upper bound (nadir locale)")
+    legend()
     xlabel("z1 : error ");
     ylabel("z2 : maximum diametre (cm) ");
     title("Gear objective (Objective space)");
