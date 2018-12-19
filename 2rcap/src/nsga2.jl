@@ -11,7 +11,9 @@ mutable struct Individu
 end
 function nsga2(c1,c2,w,b,popsize,nGenerations,Pc,Pm)
     (n,n) = size(c1)
-    colors = ["g","c","m","y","k","w"]
+    println("Size of n = $n")
+    # colors = ["g","c","m","y","w"]
+    colors = ["g","b"]
     # Generate nIndividus : initial population --------------------------------------------------------------------------------------
     println()
     println("**************\t INITIALISATION OF POPULATION \t**************")
@@ -33,17 +35,7 @@ function nsga2(c1,c2,w,b,popsize,nGenerations,Pc,Pm)
          objective_2 = evalObjective(individu,c2)
          add(population,ind,individu,objective_1,objective_2,0,0)
     end
-
-    #========================================================================================================#
-    # PLOT
-    # f1 = population.obj1
-    # f2 = population.obj2
-    # xlabel("z1")
-    # ylabel("z2")
-    # plot(f1,f2,"bx", markersize = "6")
-    # !isinteractive() && show()
-    #========================================================================================================#
-
+    # complete population
     if popToTake < popsize
         # Faudra completer popsize, par random
         indPop = length(population.id)
@@ -65,6 +57,28 @@ function nsga2(c1,c2,w,b,popsize,nGenerations,Pc,Pm)
     #      objective_2 = evalObjective(individu,c2)
     #      add(population,ind,individu,objective_1,objective_2,0,0)
     # end
+
+    #========================================================================================================#
+    # PLOT
+    f1 = population.obj1
+    f2 = population.obj2
+    xlabel("z1")
+    ylabel("z2")
+    plot(f1,f2,"bx", markersize = "6")
+    !isinteractive() && show()
+
+    for i = 1:popsize
+        if !checkFeasibiliy(population.solution[i],w,b)
+            # solution non faisable, sera afficher dans une couleur differente
+            f1 = population.obj1[i]
+            f2 = population.obj2[i]
+            xlabel("z1")
+            ylabel("z2")
+            plot(f1,f2,"kx", markersize = "6")
+            !isinteractive() && show()
+        end
+    end
+    #========================================================================================================#
 
     # f1 = population.obj1
     # f2 = population.obj2
@@ -151,12 +165,38 @@ function nsga2(c1,c2,w,b,popsize,nGenerations,Pc,Pm)
         affichage(population)
         #========================================================================================================#
         # PLOT
-        f1 = population.obj1
-        f2 = population.obj2
-        xlabel("z1")
-        ylabel("z2")
-        plot(f1,f2,colors[rand(1:6)]*"x", markersize = "6")
-        !isinteractive() && show()
+        # Des colorations differente pour des Generations
+        # sleep(2)
+        if g%2 == 0
+            f1 = population.obj1
+            f2 = population.obj2
+            xlabel("z1")
+            ylabel("z2")
+            plot(f1,f2,"bx", markersize = "6")
+            !isinteractive() && show()
+        else
+            f1 = population.obj1
+            f2 = population.obj2
+            xlabel("z1")
+            ylabel("z2")
+            # colors[rand(1:5)]
+            plot(f1,f2,"gx", markersize = "6")
+            !isinteractive() && show()
+        end
+
+
+        for i = 1:popsize
+            if !checkFeasibiliy(population.solution[i],w,b)
+                # solution non faisable, sera afficher dans une couleur differente
+                f1 = population.obj1[i]
+                f2 = population.obj2[i]
+                xlabel("z1")
+                ylabel("z2")
+                plot(f1,f2,"kx", markersize = "6")
+                !isinteractive() && show()
+            end
+        end
+
         #========================================================================================================#
     end
     # retourner les individus de rang 1
